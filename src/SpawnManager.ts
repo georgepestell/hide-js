@@ -47,7 +47,7 @@ class SpawnManager {
 
     let deadBlobs: BlobEnemy[] = [];
     for (const blob of blobs) {
-      if (blob.dead) {
+      if (blob.isDead) {
         deadBlobs.push(blob);
       }
     }

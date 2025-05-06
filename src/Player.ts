@@ -1,4 +1,4 @@
-class Player extends PhysicsObject {
+class Player extends PhysicsObject implements Wielder, Killable {
   w: number;
   h: number;
 
@@ -9,7 +9,7 @@ class Player extends PhysicsObject {
   lastRollFrame = 0;
 
   lastAnimation: number = 0;
-  animationPhaseShift: number = 0;
+  animationPhaseShift: number = PI;
 
   currentFrame: number;
   spriteDirection: number;
@@ -21,6 +21,14 @@ class Player extends PhysicsObject {
   sy: number;
 
   now: number = 0;
+
+  readonly maxHealth: number;
+  health: number;
+  isDead: boolean = false;
+
+  readonly invulnerableTime: number = 2000;
+  isInvulnerable: boolean = false;
+  lastDamaged: number = 0;
 
   constructor(x: number, y: number, w: number, h: number) {
     super(1);
@@ -36,11 +44,18 @@ class Player extends PhysicsObject {
     this.row = 0;
     this.sx = 0;
     this.sy = 0;
+
+    this.maxHealth = 3;
+    this.health = this.maxHealth;
   }
 
   update(): void {
 
     this.now = millis();
+
+    if (this.isInvulnerable && this.lastDamaged + this.invulnerableTime < this.now) {
+      this.isInvulnerable = false;
+    }
 
     if (this.isRolling) {
       if (this.lastRoll + this.rollTime < this.now) {
@@ -103,6 +118,14 @@ class Player extends PhysicsObject {
     }
 
     push();
+
+    if (this.isInvulnerable) {
+      sprite.filter(GRAY);
+      const time: number = this.now - this.lastAnimation;
+      const a: number = Math.sin(TWO_PI * time * (1 / (this.invulnerableTime / 2)) + this.animationPhaseShift) * 55 + 200;
+      tint(255, 255, 255, a);
+    }
+
     imageMode(CENTER);
     translate(this.position.x, this.position.y - this.h / 2);
     scale(this.spriteDirection, 1);
@@ -177,5 +200,27 @@ class Player extends PhysicsObject {
   getOrigin(): p5.Vector {
     return createVector(this.position.x, this.position.y - 1);
   } 
+
+  getWeaponOrigin(): p5.Vector {
+    return this.getOrigin().sub(createVector(0, this.h / 2));
+  }
+
+  getRotation(): number {
+    return Math.atan2(this.orientation.y, this.orientation.x);
+  }
+
+  damage(): void {
+    if (!this.isInvulnerable && !this.isRolling) {
+      this.health--;
+      this.isInvulnerable = true;
+      this.lastAnimation = this.now;
+      this.lastDamaged = millis();
+
+      if (this.health <= 0) {
+        this.isDead = true;
+      }
+
+    } 
+  }
 
 } 

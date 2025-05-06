@@ -8,8 +8,8 @@ enum State {
   DISABLED
 }
 
-class BlobEnemy extends PhysicsObject {
-  
+class BlobEnemy extends PhysicsObject implements Killable {
+
   readonly jumpTime: number     = 500;
   readonly jumpCooldown: number = 2000;
   readonly jumpForce: number    = 3;
@@ -38,8 +38,9 @@ class BlobEnemy extends PhysicsObject {
   readonly w: number;
   readonly h: number;
 
-  dead: boolean = false;
+  readonly maxHealth: number;
   health: number;
+  isDead: boolean = false;
 
   blobInput: MovementForce;
 
@@ -53,6 +54,9 @@ class BlobEnemy extends PhysicsObject {
 
     this.blobInput = new MovementForce();
     fr.register(this, this.blobInput);
+
+    this.maxHealth = 2;
+    this.health = this.maxHealth;
   }
 
   update(): void {
@@ -214,7 +218,12 @@ class BlobEnemy extends PhysicsObject {
     return this.position.y;
   }
 
-
+  damage(): void {
+    this.health--;
+    if (this.health <= 0) {
+      this.isDead = true;
+    }
+  }
      
 
 

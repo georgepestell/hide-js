@@ -10,6 +10,8 @@ let TILES_Y: number;
 let NUM_SPAWNERS = 5;
 
 let player: Player;
+let weaponManager: WeaponManager<Weapon>;
+let sword: MeleeWeapon;
 
 let fr: ForceRegistry;
 
@@ -20,12 +22,16 @@ let ch: ContactHelper;
 
 // Artwork
 let playerArt: p5.Image;
+let weaponArt: p5.Image;
 let rollingArt: p5.Image;
 let wallArt: p5.Image;
 let windowArt: p5.Image;
 let wallCanvas: HTMLCanvasElement;
 let wallPattern: CanvasPattern;
 let grassArt: p5.Image[];
+
+let attackSound: p5.SoundFile;
+let mainFont: p5.Font;
 
 let world: World;
 
@@ -37,12 +43,18 @@ let pathFinder: PathFinder;
 // Textures
 let floorTexture: p5.Graphics;
 
+let gameover: boolean = false;
+let startNewGame: boolean = false;
+
 function preload() {
   grassArt = new Array();
   grassArt.push(loadImage("assets/grass_tile_0.png"));
   grassArt.push(loadImage("assets/grass_tile_1.png"));
   grassArt.push(loadImage("assets/grass_tile_2.png"));
   grassArt.push(loadImage("assets/grass_tile_3.png"));
+
+  mainFont = loadFont("data/AtkinsonHyperlegible-Regular.ttf");
+
 }
 
 function setup() {
@@ -61,6 +73,15 @@ function setup() {
   // Create objects
   player = new Player(width / 2, height / 2, TILE_W * 0.8, TILE_W * 1.6);
   world.addEntity(player);
+
+  weaponArt = loadImage("assets/sword_wooden.png");
+  attackSound = loadSound("data/swoosh.wav");
+
+  weaponManager = new WeaponManager<Weapon>(player, TILE_W, TILE_H);
+  sword = new MeleeWeapon(weaponArt, attackSound);
+  world.addEntity(sword);
+
+  weaponManager.setWeapon(sword);
 
   // Vertical walls
   for (let i: number = 0; i < TILES_Y; i++) {
@@ -188,21 +209,36 @@ function setup() {
   wallArt = loadImage("assets/brick_tile.png");
   windowArt = loadImage("assets/window.png");
 
+  textFont(mainFont);
+
   generateFloorTexture();
 
+  gameover = false;
+  startNewGame = false;
   spawnManager.nextRound();
 }
 
 function draw() {
+
+  // Check end game
+  if (gameover) {
+    if (startNewGame) {
+      setup();
+    } else {
+      return;
+    }
+  }
+
   // Initialize background
   background(100);
-
 
   // Update 
   
   pathFinder.updateEnemyWeights(blobs);
  
   player.update();
+  sword.update();
+
   blobs.forEach((blob: BlobEnemy) => {
     blob.update();
   });
@@ -219,9 +255,14 @@ function draw() {
   for (let bId: number = 0; bId < blobs.length; bId++) {
     const blob = blobs[bId];
 
-    let blobWallContact : Contact | null = world.getWallContact(blob);
+    const blobWallContact : Contact | null = world.getWallContact(blob);
     if (blobWallContact != null) {
       blobWallContact.resolve();
+    }
+
+    const blobPlayerContact: Contact | null = ch.detectFloorContact(blob, player, 0);
+    if (blobPlayerContact != null) {
+      player.damage();
     }
 
     for (let b2Id: number = bId + 1; b2Id < blobs.length; b2Id++) {
@@ -242,6 +283,8 @@ function draw() {
 
   // Integrate
   player.integrate();
+  weaponManager.integrate();
+
   blobs.forEach((blob: BlobEnemy) => {
     blob.integrate();
   });
@@ -254,6 +297,24 @@ function draw() {
   world.display();
 
   // Draw UI
+  
+  // Check end game
+  if (player.isDead) {
+    gameover = true;
+
+    // Display end screen
+    noStroke();
+    fill(0, 0, 0, 180);
+    rect(0, 0, width, height);
+
+    fill(255);
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text("     Memento Mori...", width/2, height/2 - 32);
+    textSize(24);
+    text("Round: " + spawnManager.getRound(), width/2, height/2);
+    text("RESTART\n<r>", width/2, height/2 + 92);
+  }
 } 
 
 function keyPressed() {
@@ -278,6 +339,14 @@ function keyPressed() {
     player.roll();
   }
 
+  if (key == 'k') {
+    weaponManager.attack();
+  }
+
+  if (key == 'r' && gameover) {
+    startNewGame = true;
+  }
+
 }
 
 function keyReleased() {
@@ -300,7 +369,7 @@ function keyReleased() {
     userInput.update();
   } 
   
-  if (key == 'r') {
+  if (key == 'R') {
     setup();
   }
 }
