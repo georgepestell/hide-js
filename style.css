@@ -1,0 +1,17 @@
+body, html  {
+  margin: 0;
+  padding: 0;
+  background: black;
+}
+
+main {
+  display: flex;
+  height: 100vh;
+  overflow-y: hidden;
+}
+
+
+canvas {
+  display: block;
+  margin: auto auto;
+}
