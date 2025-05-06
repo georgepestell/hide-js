@@ -227,11 +227,10 @@ class BlobEnemy extends PhysicsObject implements Killable {
     this.health--;
     if (this.health <= 0) {
       this.isDead = true;
-      return;
     }
     
     this.isInvulnerable = true;
-    this.lastInvulnerable = this.now;
+    this.lastInvulnerable = millis();
     this.state = State.HURT;
     this.blobInput.set(0, 0);
     this.lastDisabled = this.now;

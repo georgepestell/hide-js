@@ -96,13 +96,14 @@ class World {
   addEntity(entity: Renderable): void {
     this.entities.set(entity.id, entity);
   }
-  addStaticEntity(entity: Renderable): void {
-    this.rq.add(entity.id, entity);
-  }
 
   removeEntity(entity: Renderable): void {
     this.entities.delete(entity.id);
     this.rq.remove(entity.id);
+  }
+
+  addStaticEntity(entity: Renderable): void {
+    this.rq.add(entity.id, entity);
   }
 
   getTile(x: number, y: number): p5.Vector {

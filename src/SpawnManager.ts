@@ -54,7 +54,9 @@ class SpawnManager {
 
     this.enemiesRemaining -= deadBlobs.length;
     for (const blob of deadBlobs) {
-      blobs.splice(blobs.indexOf(blob), 0);
+      world.removeEntity(blob);
+      blobs.splice(blobs.indexOf(blob), 1);
+      this.kill();
     }
 
     for (const spawner of this.spawners) {
@@ -93,6 +95,11 @@ class SpawnManager {
 
   kill(): void {
     this.enemiesRemaining--;
+
+    if (this.getRemaining() <= 0) {
+      this.nextRound();
+    }
+
   }
 
   getRound(): number {
