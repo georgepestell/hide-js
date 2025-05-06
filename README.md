@@ -1,6 +1,6 @@
-# Hide (JavaScript)
+# Hide (TypeScript)
 
-A port of the Processing (Java) game [github.com/georgepestell/hide](https://github.com/georgepestell/hide) into JavaScript using p5.js.
+A port of the Processing (Java) game [github.com/georgepestell/hide](https://github.com/georgepestell/hide) into TypeScript using p5.js.
 
 # Setup
 
