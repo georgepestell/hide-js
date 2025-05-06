@@ -121,19 +121,19 @@ class ContactHelper {
     return this.detectContactRectangleRectangle(o1, o2, o1.getBBOX(), o2.getBBOX());
   }
 
-  // detectMeleeContact(weapon: MeleeWeapon, wielder: PhysicsObject, object: PhysicsObject): Contact | null{
+  detectMeleeContact(weapon: MeleeWeapon, wielder: PhysicsObject, object: PhysicsObject): Contact | null{
 
-  //   wBBOX: p5.Vector[] = weapon.getBBOX(); 
-  //   oBBOX: p5.Vector[] = object.getBBOX();
+    const wBBOX: p5.Vector[] = weapon.getBBOX(); 
+    const oBBOX: p5.Vector[] = object.getBBOX();
 
-  //   const contact: Contact = this.detectContactRectangleRectangle(wielder, object, wBBOX, oBBOX);
+    const contact: Contact | null = this.detectContactRectangleRectangle(wielder, object, wBBOX, oBBOX);
 
-  //   if (contact != null && this.detectContactEllipseRectangle(wielder, object, weapon.attackRangeWidth, weapon.attackRangeHeight, weapon.origin, oBBOX) != null) {
-  //     return contact;
-  //   } else {
-  //     return null;
-  //   }
+    if (contact != null && this.detectContactEllipseRectangle(wielder, object, weapon.attackRangeW, weapon.attackRangeH, weapon.origin, oBBOX) != null) {
+      return contact;
+    } else {
+      return null;
+    }
 
-  // }
+  }
 
 }

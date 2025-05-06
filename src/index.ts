@@ -9,6 +9,8 @@ let TILES_Y: number;
 
 let NUM_SPAWNERS = 5;
 
+let ui: UI;
+
 let player: Player;
 let weaponManager: WeaponManager<Weapon>;
 let sword: MeleeWeapon;
@@ -23,6 +25,7 @@ let ch: ContactHelper;
 // Artwork
 let playerArt: p5.Image;
 let weaponArt: p5.Image;
+let weaponPlaceholderArt: p5.Image;
 let rollingArt: p5.Image;
 let wallArt: p5.Image;
 let windowArt: p5.Image;
@@ -70,16 +73,23 @@ function setup() {
 
   pathFinder = new PathFinder(TILES_X, TILES_Y);
 
+  // Create UI
+  ui = new UI(0, 0);
+  world.addStaticEntity(ui);
+
   // Create objects
   player = new Player(width / 2, height / 2, TILE_W * 0.8, TILE_W * 1.6);
   world.addEntity(player);
 
   weaponArt = loadImage("assets/sword_wooden.png");
+  weaponPlaceholderArt = loadImage("assets/weapon_placeholder.png");
   attackSound = loadSound("data/swoosh.wav");
 
   weaponManager = new WeaponManager<Weapon>(player, TILE_W, TILE_H);
+  ui.add(weaponManager);
+
   sword = new MeleeWeapon(weaponArt, attackSound);
-  world.addEntity(sword);
+  world.addStaticEntity(sword);
 
   weaponManager.setWeapon(sword);
 
@@ -258,6 +268,17 @@ function draw() {
     const blobWallContact : Contact | null = world.getWallContact(blob);
     if (blobWallContact != null) {
       blobWallContact.resolve();
+    }
+
+    if (weaponManager.weapon != null) {
+      const blobWeaponContact: Contact | null = weaponManager.detectContact(blob);
+
+
+      if (blobWeaponContact != null) {
+        blobWeaponContact.resolveKnockback();
+        blob.damage();
+      }
+
     }
 
     const blobPlayerContact: Contact | null = ch.detectFloorContact(blob, player, 0);

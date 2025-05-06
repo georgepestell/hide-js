@@ -33,10 +33,25 @@ class MeleeWeapon extends Weapon {
     return createVector(this.origin.x + (this.attackRangeW / 2) * Math.cos(angle), this.origin.y + (this.attackRangeH / 2) * Math.sin(angle));
   }
 
-  // TODO: Melee weapon bbox
-  // getBBOX(): p5.Vector[] {
-  //   let bbox: p5.Vector[] = [];
-  // }
+  getBBOX(): p5.Vector[] {
+    let bbox: p5.Vector[] = [];
+
+    const startPoint: p5.Vector = this.getPointOnEllipse(this.rotation - this.attackRadius); 
+    const endPoint: p5.Vector = this.getPointOnEllipse(this.rotation + this.attackRadius); 
+    const midPoint: p5.Vector = this.getPointOnEllipse(this.rotation); 
+
+    const minX: number = min(this.origin.x, min(startPoint.x, min(endPoint.x, midPoint.x)));
+    const maxX: number = max(this.origin.x, max(startPoint.x, max(endPoint.x, midPoint.x)));
+    const minY: number = min(this.origin.y, min(startPoint.y, min(endPoint.y, midPoint.y)));
+    const maxY: number = max(this.origin.y, max(startPoint.y, max(endPoint.y, midPoint.y)));
+
+    bbox.push(createVector(minX, minY));
+    bbox.push(createVector(maxX, minY));
+    bbox.push(createVector(maxX, maxY));
+    bbox.push(createVector(minX, maxY));
+
+    return bbox;
+  }
 
   display(): void {
     if (this.isAttacking) {

@@ -1,10 +1,10 @@
-class WeaponManager<WeaponType extends Weapon> {
+class WeaponManager<WeaponType extends Weapon> extends UIElement {
 
   wielder: Wielder;
   weapon: WeaponType | null;
 
   constructor(wielder: Wielder, w: number, h: number) {
-    // TODO: UI ELEMENT W and H
+    super(w, h);
     this.wielder = wielder;
     this.weapon = null;
   } 
@@ -33,31 +33,51 @@ class WeaponManager<WeaponType extends Weapon> {
     this.weapon = null;
   }
 
-  // detectContact(object: PhysicsObject): Contact | null {
-  //   if (this.weapon == null || object == null || this.wielder == null) {
-  //     return null;
-  //   }
+  detectContact(object: PhysicsObject): Contact | null {
+    if (this.weapon == null || object == null || this.wielder == null) {
+      return null;
+    }
 
-  //   if (this.weapon instanceof MeleeWeapon) {
-  //     const meleeWeapon: MeleeWeapon = weapon as MeleeWeapon;
+    if (this.weapon instanceof MeleeWeapon) {
+      const meleeWeapon: MeleeWeapon = this.weapon as MeleeWeapon;
 
-  //     if (!meleeWeapon.isAttacking) {
-  //       return null;
-  //     }
+      if (!meleeWeapon.isAttacking) {
+        return null;
+      }
 
-  //     const contact: Contact | null = ch.detectMeleeContact(meleeWeapon, this.wielder as PhysicsObject, object);
+      let contact: Contact | null;
+      if (this.wielder instanceof PhysicsObject) {
+        contact = ch.detectMeleeContact(meleeWeapon, this.wielder as PhysicsObject, object);
+      } else {
+        contact = null;
+      }
 
-  //     if (contact != null) {
-  //       contact.contactNormal.set(-Math.cos(meleeWeapon.rotation), -Math.sin(meleeWeapon.rotation));
-  //       contact.weapon = weapon;
-  //     }
-  //
-  //     return contact;
-  //   }
-  //
-  //   Error("Weapon type contacts not yet implemented");
-  //   return null;
-  //
-  // }
+      if (contact != null) {
+        contact.contactNormal.set(-Math.cos(meleeWeapon.rotation), -Math.sin(meleeWeapon.rotation));
+        contact.weapon = this.weapon;
+      }
+  
+      return contact;
+    }
+  
+    Error("Weapon type contacts not yet implemented");
+    return null;
+  
+  }
+
+  display(): void {
+    stroke(255);
+    fill(0);
+
+    let icon: p5.Image = weaponPlaceholderArt;
+
+    if (this.weapon != null) {
+      icon = this.weapon.icon;
+    } 
+
+    image(icon, this.x, this.y, this.w, this.h);
+
+    noStroke();
+  }
 
 } 

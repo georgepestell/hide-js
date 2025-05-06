@@ -30,7 +30,7 @@ class BlobEnemy extends PhysicsObject implements Killable {
 
   readonly invulnerableTime: number = 500;
   lastInvulnerable: number          = 0;
-  invulnerable: boolean             = false;
+  isInvulnerable: boolean           = false;
   
   readonly disableTime: number  = 1000;
   lastDisabled: number          = 0;
@@ -63,8 +63,8 @@ class BlobEnemy extends PhysicsObject implements Killable {
     this.now = millis();
 
     // Stop being invulnerable
-    if (this.invulnerable && this.lastInvulnerable + this.invulnerableTime < this.now) {
-      this.invulnerable = false;
+    if (this.isInvulnerable && this.lastInvulnerable + this.invulnerableTime < this.now) {
+      this.isInvulnerable = false;
     } 
 
     if (this.state == State.DISABLED) {
@@ -219,10 +219,23 @@ class BlobEnemy extends PhysicsObject implements Killable {
   }
 
   damage(): void {
+
+    if (this.isInvulnerable) {
+      return;
+    }
+
     this.health--;
     if (this.health <= 0) {
       this.isDead = true;
+      return;
     }
+    
+    this.isInvulnerable = true;
+    this.lastInvulnerable = this.now;
+    this.state = State.HURT;
+    this.blobInput.set(0, 0);
+    this.lastDisabled = this.now;
+
   }
      
 

@@ -96,6 +96,9 @@ class World {
   addEntity(entity: Renderable): void {
     this.entities.set(entity.id, entity);
   }
+  addStaticEntity(entity: Renderable): void {
+    this.rq.add(entity.id, entity);
+  }
 
   removeEntity(entity: Renderable): void {
     this.entities.delete(entity.id);
@@ -110,7 +113,6 @@ class World {
 
   display(): void {
     this.rq.display();
-
   }
 
   getWallContact(entity: PhysicsObject): Contact | null {
