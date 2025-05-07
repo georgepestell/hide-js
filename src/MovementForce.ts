@@ -33,7 +33,7 @@ class MovementForce extends ForceGenerator {
     object.addForce(directionalForce);
 
     if (this.direction.mag() > 0) {
-      object.orientation = this.direction;
+      object.orientation = this.direction.copy();
     }
        
   }
