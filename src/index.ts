@@ -85,7 +85,15 @@ function setup() {
   weaponPlaceholderArt = loadImage("assets/weapon_placeholder.png");
   attackSound = loadSound("data/swoosh.wav");
 
+  spawnManager = new SpawnManager(3, 1.15);
+
   weaponManager = new WeaponManager<Weapon>(player, TILE_W, TILE_H);
+
+  const roundUI = new RoundUI(spawnManager, TILE_W * 3, TILE_W);
+  const healthUI = new HealthUI(TILE_W * 2, TILE_W);
+  
+  ui.add(roundUI);
+  ui.add(healthUI);
   ui.add(weaponManager);
 
   sword = new MeleeWeapon(weaponArt, attackSound);
@@ -133,7 +141,6 @@ function setup() {
   }
 
   // Create spawners
-  spawnManager = new SpawnManager(3, 1.15);
   blobs = [];
   let spawnPositions: Set<p5.Vector> = new Set<p5.Vector>();
   for (let i: number = 0; i < NUM_SPAWNERS; i++) {
@@ -335,7 +342,17 @@ function draw() {
     textSize(24);
     text("Round: " + spawnManager.getRound(), width/2, height/2);
     text("RESTART\n<r>", width/2, height/2 + 92);
+    return;
   }
+
+  if (spawnManager.showNewRoundText) {
+    textSize(50);
+    noStroke();
+    fill(100);
+    textAlign(CENTER, CENTER);
+    text("Round: " + spawnManager.getRound(), width / 2, height / 2);
+  }
+
 } 
 
 function keyPressed() {
